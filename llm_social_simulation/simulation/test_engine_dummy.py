@@ -4,17 +4,13 @@ from llm_social_simulation.simulation.engine import SimulationEngine
 
 # ---- Dummy implementations ----
 
+
 class DummyGameworld:
     def get_observation(self, agent_id):
-        return {
-            "self_id": agent_id,
-            "neighbors": []
-        }
+        return {"self_id": agent_id, "neighbors": []}
 
     def apply_actions(self, actions):
-        return {
-            "actions": actions
-        }
+        return {"actions": actions}
 
 
 class DummyAgent:
@@ -28,10 +24,7 @@ class DummyAgent:
 # ---- Run test ----
 
 if __name__ == "__main__":
-    engine = SimulationEngine(
-        DummyGameworld(),
-        [DummyAgent(0), DummyAgent(1)]
-    )
+    engine = SimulationEngine(DummyGameworld(), [DummyAgent(0), DummyAgent(1)])
 
     history = engine.run(3)
     print("History:", history)
