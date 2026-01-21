@@ -3,8 +3,6 @@
 This document describes the phased roadmap for the LLM Social Simulation project.
 Each phase contains goals, deliverables, and acceptance criteria.
 
----
-
 ## Phase 0 — MVP: End-to-End Simulation Loop (Closed Loop + Tests)
 
 **Status:** In progress (late stage)
@@ -16,8 +14,6 @@ Dilemma (IPD) on a fixed graph, produce analyzable outputs, and pass automated t
 
 Phase 0 establishes a stable foundation or internal environment for all later phases.
 
----
-
 ### Core Capabilities
 
 - Run multi-round IPD on a fixed graph
@@ -26,7 +22,6 @@ Phase 0 establishes a stable foundation or internal environment for all later ph
   - Final wealth distribution
 - Simulation-related tests pass (smoke tests)
 
----
 
 ### Deliverables (Minimal Set)
 
@@ -47,7 +42,6 @@ Phase 0 establishes a stable foundation or internal environment for all later ph
 - `test_engine_dummy.py`
 - All simulation tests pass under `pytest`
 
----
 
 ### Acceptance Criteria
 
@@ -58,3 +52,8 @@ Phase 0 establishes a stable foundation or internal environment for all later ph
 - Output includes: Cooperation rate over time and final wealth per agent
 - pytest passes
   
+## Phase 1 -- Small-World Networks & Config-Driven Experiments
+## Phase 2 -- Baselines, Norms, and Measurement Validity (Pre-LLM)
+Purpose: Establish controls so LLM behavior can be isolated later.
+## Phase 3 -- LLM Agents, Communication, and Dynamic Networks
+Purpose: Study how LLMs behave as social agents under constraints.
