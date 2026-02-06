@@ -1,0 +1,33 @@
+from __future__ import annotations
+
+from hashlib import sha256
+import json
+import time
+
+from .client import LLMClient
+from .types import LLMRequest, LLMResponse
+
+
+class MockClient(LLMClient):
+    """Deterministic mock provider for tests and local simulation."""
+
+    def __init__(self, fixed_latency_ms: float = 1.0):
+        self.fixed_latency_ms = fixed_latency_ms
+
+    def generate(self, request: LLMRequest) -> LLMResponse:
+        request_hash = request.stable_hash()
+        seed_payload = {
+            "hash": request_hash,
+            "model": request.model,
+        }
+        digest = sha256(json.dumps(seed_payload, sort_keys=True).encode("utf-8")).hexdigest()[:16]
+        content = json.dumps({"mock_id": digest, "decision": "C"}, sort_keys=True)
+        time.sleep(self.fixed_latency_ms / 1000.0)
+        return LLMResponse(
+            content=content,
+            model=f"mock:{request.model}",
+            request_hash=request_hash,
+            latency_ms=self.fixed_latency_ms,
+            usage=None,
+            raw={"source": "mock"},
+        )

@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-social-simulation"
+version = "0.1.0"
+description = "Multi-agent social simulation toolkit"
+requires-python = ">=3.10"
+dependencies = [
+  "pydantic>=2.7",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["llm_social_simulation"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+strict = false
+warn_unused_configs = true
+files = ["llm_social_simulation/models"]
