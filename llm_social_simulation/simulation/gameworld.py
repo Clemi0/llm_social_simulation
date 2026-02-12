@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Any
+from typing import Any, Dict, List, Mapping, Tuple
 import copy
 
 Action = str  # "C" or "D"
+AgentId = int
 
 
 @dataclass(frozen=True)
@@ -125,4 +126,168 @@ class Gameworld:
             wealth=copy.deepcopy(self.wealth),
         )
         self.t += 1
+        return tick
+
+
+@dataclass(frozen=True)
+class OpenResourcesConfig:
+    """
+    Contract-layer configuration for the Open Resources game.
+
+    NOTE: this only establishes interface and default bounds. The full dynamics
+    (allocation, governance pool recursion, regeneration) are intentionally not
+    implemented in this step.
+    """
+
+    agent_ids: Tuple[AgentId, ...]
+    initial_resource: float = 100.0
+    initial_pool: float = 0.0
+    initial_wealth: float = 0.0
+    max_harvest_per_step: float = 1_000_000.0
+
+
+@dataclass(frozen=True)
+class OpenResourcesAction:
+    """Single-step action request by one agent."""
+
+    harvest: float
+    contribute: float
+
+
+@dataclass(frozen=True)
+class OpenResourcesObservation:
+    """
+    Per-agent observation payload for the Open Resources world.
+
+    All fields are JSON-serializable to simplify logging and analytics.
+    """
+
+    self_id: AgentId
+    t: int
+    R: float
+    P: float
+    self_wealth: float
+    known_agents: List[AgentId]
+    info: Dict[str, Any]
+
+
+@dataclass(frozen=True)
+class OpenResourcesTick:
+    """
+    Per-step result object for analytics and research.
+
+    This is contract-only for now; many values may be placeholders until
+    full dynamics are implemented.
+    """
+
+    t: int
+    R_before: float
+    R_after: float
+    P_before: float
+    P_after: float
+    harvest_requested: Dict[AgentId, float]
+    harvest_actual: Dict[AgentId, float]
+    contribute: Dict[AgentId, float]
+    reward: Dict[AgentId, float]
+    wealth: Dict[AgentId, float]
+    clamped: Dict[AgentId, Dict[str, bool]]
+    info: Dict[str, Any]
+
+
+@dataclass
+class OpenResourcesState:
+    """Internal snapshot container for mutable world state."""
+
+    t: int
+    R: float
+    P: float
+    wealth: Dict[AgentId, float]
+
+
+class OpenResourcesGameWorld:
+    """
+    Open Resources game contract adapter.
+
+    This class intentionally implements only the interface expected by the
+    simulation engine: `get_observation(agent_id)` and
+    `apply_actions(actions) -> OpenResourcesTick`.
+    """
+
+    def __init__(self, config: OpenResourcesConfig):
+        self.config = config
+        self.state = OpenResourcesState(
+            t=0,
+            R=float(config.initial_resource),
+            P=float(config.initial_pool),
+            wealth={agent_id: float(config.initial_wealth) for agent_id in config.agent_ids},
+        )
+
+    def get_observation(self, agent_id: AgentId) -> OpenResourcesObservation:
+        if agent_id not in self.state.wealth:
+            raise ValueError(f"Unknown agent_id: {agent_id}")
+
+        return OpenResourcesObservation(
+            self_id=agent_id,
+            t=self.state.t,
+            R=self.state.R,
+            P=self.state.P,
+            self_wealth=self.state.wealth[agent_id],
+            known_agents=list(self.config.agent_ids),
+            info={"contract_only": True},
+        )
+
+    def apply_actions(self, actions: Mapping[AgentId, OpenResourcesAction]) -> OpenResourcesTick:
+        """
+        Validate and normalize actions, then emit a contract-complete tick.
+
+        Full dynamics are deferred to the next implementation step.
+        """
+        harvest_requested: Dict[AgentId, float] = {}
+        harvest_actual: Dict[AgentId, float] = {}
+        contribute: Dict[AgentId, float] = {}
+        reward: Dict[AgentId, float] = {}
+        clamped: Dict[AgentId, Dict[str, bool]] = {}
+
+        for agent_id in self.config.agent_ids:
+            if agent_id not in actions:
+                raise ValueError(f"Missing action for agent {agent_id}")
+
+            action = actions[agent_id]
+            if isinstance(action, OpenResourcesAction):
+                requested_harvest = float(action.harvest)
+                requested_contribute = float(action.contribute)
+            else:
+                requested_harvest = float(action["harvest"])
+                requested_contribute = float(action["contribute"])
+
+            wealth_now = self.state.wealth[agent_id]
+
+            clamped_harvest = min(max(0.0, requested_harvest), self.config.max_harvest_per_step)
+            clamped_contribute = min(max(0.0, requested_contribute), wealth_now)
+
+            harvest_requested[agent_id] = clamped_harvest
+            harvest_actual[agent_id] = clamped_harvest  # placeholder until allocation is implemented
+            contribute[agent_id] = clamped_contribute
+            reward[agent_id] = 0.0  # placeholder until governance reward logic is implemented
+            clamped[agent_id] = {
+                "harvest": clamped_harvest != requested_harvest,
+                "contribute": clamped_contribute != requested_contribute,
+            }
+
+        tick = OpenResourcesTick(
+            t=self.state.t,
+            R_before=self.state.R,
+            R_after=self.state.R,
+            P_before=self.state.P,
+            P_after=self.state.P,
+            harvest_requested=harvest_requested,
+            harvest_actual=harvest_actual,
+            contribute=contribute,
+            reward=reward,
+            wealth=dict(self.state.wealth),
+            clamped=clamped,
+            info={"contract_only": True, "dynamics_implemented": False},
+        )
+
+        self.state.t += 1
         return tick
