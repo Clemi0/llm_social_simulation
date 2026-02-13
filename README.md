@@ -65,6 +65,24 @@ If setup still fails, share:
 - `uv --version`
 
 ---
+## Development Setup (uv)
+### 1) Create your own OpenRouter API key from here: https://openrouter.ai/
+### 2) In the repository root do the following:
+```bash
+cp .env.example .env
+```
+Then Open .env and paste:
+```bash
+OPENROUTER_API_KEY=sk-xxxx
+```
+### 3) Make sure your environment is set up
+```bash
+uv sync --group dev
+```
+### 4) Test
+```bash
+uv run python llm_social_simulation/models/tests/try_openrouter.py
+```
 
 ## Notes
 
