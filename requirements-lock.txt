@@ -1,0 +1,12 @@
+annotated-types==0.7.0
+iniconfig==2.3.0
+-e git+https://github.com/Clemi0/llm_social_simulation.git@18c1be1cbe45209b38b1d5653245b1f969f4cf11#egg=llm_social_simulation
+packaging==25.0
+pluggy==1.6.0
+pydantic==2.12.5
+pydantic_core==2.41.5
+Pygments==2.19.2
+pytest==9.0.2
+typing-inspection==0.4.2
+typing_extensions==4.15.0
+-e git+https://github.com/Clemi0/llm_social_simulation.git@18c1be1cbe45209b38b1d5653245b1f969f4cf11#egg=UNKNOWN

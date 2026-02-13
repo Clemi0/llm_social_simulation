@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-from typing import Dict, List
 
-
-def cooperation_rate_per_round(history) -> List[float]:
+def cooperation_rate_per_round(history) -> list[float]:
     """
     Compute cooperation rate per round.
 
     We treat each directed action i->j as one decision.
     cooperation_rate = (# of "C") / (total actions) for that round.
     """
-    rates: List[float] = []
+    rates: list[float] = []
     for tick in history:
         total = 0
         coop = 0
@@ -23,7 +21,7 @@ def cooperation_rate_per_round(history) -> List[float]:
     return rates
 
 
-def final_wealth(history) -> Dict[int, int]:
+def final_wealth(history) -> dict[int, int]:
     """Convenience helper: wealth snapshot from the last tick."""
     if not history:
         return {}
