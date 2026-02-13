@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from hashlib import sha256
 import json
 import time
+from hashlib import sha256
 
 from .client import LLMClient
 from .types import LLMRequest, LLMResponse

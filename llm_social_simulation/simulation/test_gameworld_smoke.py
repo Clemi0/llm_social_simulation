@@ -1,6 +1,6 @@
+from llm_social_simulation.simulation.analytics import cooperation_rate_per_round
 from llm_social_simulation.simulation.engine import SimulationEngine
 from llm_social_simulation.simulation.gameworld import Gameworld, PayoffMatrix
-from llm_social_simulation.simulation.analytics import cooperation_rate_per_round
 
 
 class AlwaysC:

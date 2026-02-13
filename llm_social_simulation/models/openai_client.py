@@ -4,7 +4,8 @@ import json
 import os
 import time
 from typing import Any
-from urllib import error, request as urlrequest
+from urllib import error
+from urllib import request as urlrequest
 
 from .client import LLMClient
 from .types import (
