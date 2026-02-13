@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from pathlib import Path
 import json
 import threading
 import time
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from .client import LLMClient
@@ -144,7 +144,9 @@ class JsonLoggerClient(LLMClient):
             "latency_ms": resp.latency_ms,
             "wall_clock_ms": (time.perf_counter() - started) * 1000,
             "usage": resp.usage.__dict__ if resp.usage else None,
-            "messages": "[REDACTED]" if not self.log_prompts else [dict(m) for m in request.messages],
+            "messages": "[REDACTED]"
+            if not self.log_prompts
+            else [dict(m) for m in request.messages],
         }
         print(json.dumps(event, sort_keys=True))
         return resp

@@ -1,5 +1,5 @@
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
 
 from llm_social_simulation.models.schema import strict_json_parse
 from llm_social_simulation.models.types import LLMParseError

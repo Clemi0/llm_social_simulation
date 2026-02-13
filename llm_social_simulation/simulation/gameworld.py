@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Dict, List, Mapping, Tuple
 import copy
+from collections.abc import Mapping
+from dataclasses import dataclass
+from typing import Any
 
 Action = str  # "C" or "D"
 AgentId = int
@@ -24,7 +25,7 @@ class PayoffMatrix:
     P: int = 1
     S: int = 0
 
-    def payoff(self, a_i: Action, a_j: Action) -> Tuple[int, int]:
+    def payoff(self, a_i: Action, a_j: Action) -> tuple[int, int]:
         if a_i == "C" and a_j == "C":
             return self.R, self.R
         if a_i == "D" and a_j == "D":
@@ -39,9 +40,9 @@ class PayoffMatrix:
 @dataclass
 class TickResult:
     round: int
-    actions: Dict[int, Dict[int, Action]]  # i -> (neighbor -> action)
-    delta_payoff: Dict[int, int]  # i -> payoff gained this round
-    wealth: Dict[int, int]  # snapshot after update
+    actions: dict[int, dict[int, Action]]  # i -> (neighbor -> action)
+    delta_payoff: dict[int, int]  # i -> payoff gained this round
+    wealth: dict[int, int]  # snapshot after update
 
 
 class Gameworld:
@@ -53,17 +54,17 @@ class Gameworld:
     - t: current round index
     """
 
-    def __init__(self, graph: Dict[int, List[int]], payoff: PayoffMatrix | None = None):
+    def __init__(self, graph: dict[int, list[int]], payoff: PayoffMatrix | None = None):
         self.graph = graph
         self.payoff = payoff or PayoffMatrix()
-        self.wealth: Dict[int, int] = {i: 0 for i in graph.keys()}
-        self.last_actions: Dict[Tuple[int, int], Action] = {}
+        self.wealth: dict[int, int] = {i: 0 for i in graph.keys()}
+        self.last_actions: dict[tuple[int, int], Action] = {}
         self.t: int = 0
 
-    def neighbors(self, i: int) -> List[int]:
+    def neighbors(self, i: int) -> list[int]:
         return self.graph[i]
 
-    def get_observation(self, i: int) -> Dict[str, Any]:
+    def get_observation(self, i: int) -> dict[str, Any]:
         """
         Observation should be local + minimal.
         For MVP: only include what neighbors did to me last round, my wealth, round.
@@ -79,7 +80,7 @@ class Gameworld:
             "round": self.t,
         }
 
-    def apply_actions(self, actions: Dict[int, Dict[int, Action]]) -> TickResult:
+    def apply_actions(self, actions: dict[int, dict[int, Action]]) -> TickResult:
         """
         actions[i][j] is the action agent i takes toward neighbor j in this round.
 
@@ -113,7 +114,7 @@ class Gameworld:
             self.wealth[i] += delta[i]
 
         # --- update last_actions for next round (directed store) ---
-        new_last: Dict[Tuple[int, int], Action] = {}
+        new_last: dict[tuple[int, int], Action] = {}
         for i in self.graph.keys():
             for j in self.neighbors(i):
                 new_last[(i, j)] = actions[i][j]
@@ -139,7 +140,7 @@ class OpenResourcesConfig:
     implemented in this step.
     """
 
-    agent_ids: Tuple[AgentId, ...]
+    agent_ids: tuple[AgentId, ...]
     initial_resource: float = 100.0
     initial_pool: float = 0.0
     initial_wealth: float = 0.0
@@ -167,8 +168,8 @@ class OpenResourcesObservation:
     R: float
     P: float
     self_wealth: float
-    known_agents: List[AgentId]
-    info: Dict[str, Any]
+    known_agents: list[AgentId]
+    info: dict[str, Any]
 
 
 @dataclass(frozen=True)
@@ -185,13 +186,13 @@ class OpenResourcesTick:
     R_after: float
     P_before: float
     P_after: float
-    harvest_requested: Dict[AgentId, float]
-    harvest_actual: Dict[AgentId, float]
-    contribute: Dict[AgentId, float]
-    reward: Dict[AgentId, float]
-    wealth: Dict[AgentId, float]
-    clamped: Dict[AgentId, Dict[str, bool]]
-    info: Dict[str, Any]
+    harvest_requested: dict[AgentId, float]
+    harvest_actual: dict[AgentId, float]
+    contribute: dict[AgentId, float]
+    reward: dict[AgentId, float]
+    wealth: dict[AgentId, float]
+    clamped: dict[AgentId, dict[str, bool]]
+    info: dict[str, Any]
 
 
 @dataclass
@@ -201,7 +202,7 @@ class OpenResourcesState:
     t: int
     R: float
     P: float
-    wealth: Dict[AgentId, float]
+    wealth: dict[AgentId, float]
 
 
 class OpenResourcesGameWorld:
@@ -242,11 +243,11 @@ class OpenResourcesGameWorld:
 
         Full dynamics are deferred to the next implementation step.
         """
-        harvest_requested: Dict[AgentId, float] = {}
-        harvest_actual: Dict[AgentId, float] = {}
-        contribute: Dict[AgentId, float] = {}
-        reward: Dict[AgentId, float] = {}
-        clamped: Dict[AgentId, Dict[str, bool]] = {}
+        harvest_requested: dict[AgentId, float] = {}
+        harvest_actual: dict[AgentId, float] = {}
+        contribute: dict[AgentId, float] = {}
+        reward: dict[AgentId, float] = {}
+        clamped: dict[AgentId, dict[str, bool]] = {}
 
         for agent_id in self.config.agent_ids:
             if agent_id not in actions:
@@ -266,7 +267,9 @@ class OpenResourcesGameWorld:
             clamped_contribute = min(max(0.0, requested_contribute), wealth_now)
 
             harvest_requested[agent_id] = clamped_harvest
-            harvest_actual[agent_id] = clamped_harvest  # placeholder until allocation is implemented
+            harvest_actual[agent_id] = (
+                clamped_harvest  # placeholder until allocation is implemented
+            )
             contribute[agent_id] = clamped_contribute
             reward[agent_id] = 0.0  # placeholder until governance reward logic is implemented
             clamped[agent_id] = {
