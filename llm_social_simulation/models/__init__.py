@@ -27,3 +27,4 @@ __all__ = [
     "RetryPolicy",
     "TokenBucketRateLimiter",
 ]
+# so we can just do: from models import OpenAIClient

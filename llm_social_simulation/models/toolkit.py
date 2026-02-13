@@ -57,16 +57,20 @@ class DiskCache:
     def _path(self, key: str) -> Path:
         return self.root / f"{key}.json"
 
+    # toolkit.py (DiskCache)
+
     def get(self, key: str) -> LLMResponse | None:
         path = self._path(key)
         if not path.exists():
             return None
         payload = json.loads(path.read_text(encoding="utf-8"))
-        return LLMResponse(**payload)
+        return LLMResponse.from_dict(payload)
 
     def put(self, value: LLMResponse) -> None:
         path = self._path(value.request_hash)
-        path.write_text(json.dumps(value.__dict__, sort_keys=True), encoding="utf-8")
+        path.write_text(
+            json.dumps(value.to_dict(), sort_keys=True, ensure_ascii=False), encoding="utf-8"
+        )
 
 
 class CachedClient(LLMClient):
