@@ -4,6 +4,7 @@ __pycache__/
 .venv/
 .env
 .env.*
+!.env.example
 .vscode/
 .idea/
 .DS_Store
