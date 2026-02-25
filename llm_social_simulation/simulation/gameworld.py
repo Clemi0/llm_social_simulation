@@ -323,9 +323,7 @@ class OpenResourcesGameWorld:
                 eligible_agents = [
                     agent_id for agent_id in self.config.agent_ids if contribute[agent_id] > 0.0
                 ]
-                per_agent_reward = (
-                    reward_budget / len(eligible_agents) if eligible_agents else 0.0
-                )
+                per_agent_reward = reward_budget / len(eligible_agents) if eligible_agents else 0.0
                 reward = {
                     agent_id: per_agent_reward if agent_id in eligible_agents else 0.0
                     for agent_id in self.config.agent_ids
